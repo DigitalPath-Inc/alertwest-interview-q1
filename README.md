@@ -2,7 +2,7 @@
 
 ## Overview
 
-You are working on a database that is having unknown performance issues. Provided in this repo is a server and client. The server is the executor of queries, and the client is set up to monitor the database's utilization (cpu, io, and memory). An attempt has been made to also monitor which queries are being executed, but the method is not currently effective. Your task is to improve the system by addressing these issues in two distinct parts:
+You are working on a database that is having performance issues with an unknown cause. Provided in this repo is a server and client. The server is the executor of queries, and the client is set up to monitor the database's utilization (cpu, io, and memory). An attempt has been made to also monitor which queries are being executed, but the method is not currently effective. Your task is to improve the system by addressing these issues in two distinct parts:
 
 ## General Requirements
 
