@@ -12,7 +12,7 @@ You are working on a database that is having performance issues with an unknown 
 
 ## Use of AI Tools
 
-While AI tools are permitted, we are looking for a good understanding of what you are implementing. You should expect follow-up questions regarding design and code decisions made throughout the problem, and inability to explain why you made certain decisions will be taken into account.
+While AI tools are permitted, we are looking for a good understanding of the implemented solution. You should expect follow-up questions regarding design and code decisions made throughout the problem, and inability to explain why you made certain decisions will be taken into account.
 
 ## Current Implementation
 
