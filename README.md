@@ -8,7 +8,7 @@ You are working on a database that is having unknown performance issues. Provide
 
 - The system must recover from network or client failures without losing data or significant progress
 - Provide a method to run the services locally
-- Provide frequent PRs
+- Provide frequent PRs as you complete work
 
 ## Use of AI Tools
 
