@@ -92,7 +92,8 @@ func (s *Server) handleGetQueued(w http.ResponseWriter, r *http.Request) {
 		response := QueuedQuery{}
 		response.Query.ID = query.id.String()
 		response.Execution.ID = uuid.New().String()
-		response.Execution.Timestamp = time.Now().Add((time.Duration(1/s.tickrate) * time.Second) * time.Duration(query.delay) * time.Millisecond).UnixMilli()
+		offset := time.Duration(float64(query.delay)/float64(s.tickrate)) * time.Second
+		response.Execution.Timestamp = time.Now().Add(offset).UnixMilli()
 		responses = append(responses, response)
 	}
 
