@@ -18,7 +18,7 @@ func main() {
 
 	queue := NewQueue(queries, probs, defaultDelay)
 	monitor := NewMonitor(metricsUpdateFrequency)
-	tickrate := 10 // 10 ticks per second
+	tickrate := 100 // 100 ticks per second
 
 	daemon := NewDaemon(queue, monitor, tickrate, scalarFunc)
 	go daemon.Run()
