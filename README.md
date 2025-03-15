@@ -98,12 +98,12 @@ Now that we have a complete query execution record and associated usage metrics,
 
 ### Objective
 
-Optimize query execution scheduling to maintain an average resource utilization of 70% for CPU, IO and memory, while also taking query latency into account.
+Optimize query execution scheduling to maintain a minimum and maximum CPU, IO and memory utilization within 10% of the averages, while also taking query latency into account.
 
 ### Requirements
 
 - Develop a client-side algorithm to estimate each query's resource utilization (CPU, IO, and memory) using historical execution data and the 30-second resource metrics
-- Create a client-side algorithm to determine when to execute queries, adjusting delays to achieve the 70% utilization target
+- Create a client-side algorithm to determine when to execute queries, adjusting delays to achieve the +/- 10% spread from the average
 - Ensure the client can be restarted and resume scheduling based on the system state.
 
 ### Deliverables
