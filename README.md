@@ -1,5 +1,15 @@
 # ALERTWest Interview Question 1
 
+## Instructions
+
+1. Hard fork this repository to create your own private copy.
+2. Add the following users as collaborators to your private repository: @ehiggins0, @jlang-dp, and @chrisschreiber.
+3. Work through the tasks outlined in the Overview section.
+4. Make frequent, small PRs as you complete portions of the work. Request review for each PR and we will provide feedback on your approach.
+5. Document your approach, any assumptions made, and your reasoning for design decisions.
+
+Feel free to reach out if you have any questions or need clarification on any aspect of the problem. We're here to help ensure you understand the requirements fully.
+
 ## Overview
 
 You are working on a database that is having performance issues with an unknown cause. Provided in this repo is a server and client. The server is the executor of queries, and the client is set up to monitor the database's utilization (cpu, io, and memory). An attempt has been made to also monitor which queries are being executed, but the method is not currently effective. Your task is to improve the system by addressing these issues, first by improving the query monitoring, then by implementing query scheduling to ensure consistent performance.
@@ -65,6 +75,9 @@ The server provides the following APIs:
   "delay": 1000 // Delay in ms
 }
 ```
+
+> [!NOTE]
+> You should only need to modify [server.go](server/server.go), but feel free to take a look around.
 
 ### Client (Monitoring Service)
 
