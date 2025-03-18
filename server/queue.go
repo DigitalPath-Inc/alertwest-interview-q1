@@ -30,28 +30,22 @@ func (q *Queue) GetQueued() []*Execution {
 	return queued
 }
 
-func (q *Queue) Tick(scalar float64) ([]*Execution, int, int, int) {
+func (q *Queue) Tick(scalar float64) ([]*Execution, []*Execution) {
 	newQueries := selectExecutedQueries(q.probs, q.queries, scalar, q.defaultDelay)
 	for _, query := range newQueries {
 		q.queued[query.id] = query
 	}
 
 	executed := make([]*Execution, 0)
-	cpuUsage := 0
-	memoryUsage := 0
-	ioUsage := 0
 	for id, execution := range q.queued {
 		execution.delay -= 1
 		if execution.delay <= 0 {
 			executed = append(executed, execution)
 			delete(q.queued, id)
-			cpuUsage += execution.query.cpuUsage
-			memoryUsage += execution.query.memoryUsage
-			ioUsage += execution.query.ioUsage
 		}
 	}
 
-	return executed, cpuUsage, memoryUsage, ioUsage
+	return newQueries, executed
 }
 
 func (q *Queue) Delay(id uuid.UUID, delay int) error {

@@ -35,18 +35,20 @@ func (s *TestSuite) TestQueue() {
 		scalar := 1.0
 
 		// Tick the queue
-		executed, cpuUsage, memoryUsage, ioUsage := queue.Tick(scalar)
+		queued, executed := queue.Tick(scalar)
 
-		s.InDelta(len(executed), 1, 5) // 0-6 queries executed per tick
+		s.InDelta(len(queued), 1, 5) // 0-6 queries queued per tick
 
-		usageHistory["cpu"][i] = cpuUsage
-		usageHistory["memory"][i] = memoryUsage
-		usageHistory["io"][i] = ioUsage
+		summed := sumResources(executed)
+
+		usageHistory["cpu"][i] = summed.CPU
+		usageHistory["memory"][i] = summed.Memory
+		usageHistory["io"][i] = summed.IO
 
 		// Record resource usage
-		cpuCounts[cpuUsage]++
-		memoryCounts[memoryUsage]++
-		ioCounts[ioUsage]++
+		cpuCounts[summed.CPU]++
+		memoryCounts[summed.Memory]++
+		ioCounts[summed.IO]++
 	}
 
 	// Save usage history to disk for analysis

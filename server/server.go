@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-	"time"
 
 	"github.com/google/uuid"
 )
@@ -30,25 +29,35 @@ type QueuedQuery struct {
 
 // DelayRequest represents a request to delay a query execution
 type DelayRequest struct {
-	ID    string `json:"id"`
-	Delay int    `json:"delay"`
+	ID    uuid.UUID `json:"id"`
+	Delay int       `json:"delay"`
 }
 
 // Server represents the HTTP server
 type Server struct {
-	queue    *Queue
-	monitor  *Monitor
-	mux      *http.ServeMux
-	tickrate int
+	mux              *http.ServeMux
+	monitorEventChan <-chan *QueuedQuery
+	getQueuedChan    chan<- GetQueuedRequest
+	getResourcesChan chan<- GetResourcesRequest
+	delayChan        chan<- DelayRequest
+}
+
+type GetQueuedRequest struct {
+	ResponseChan chan<- []*QueuedQuery
+}
+
+type GetResourcesRequest struct {
+	ResponseChan chan<- ResourceMetrics
 }
 
 // NewServer creates a new HTTP server
-func NewServer(queue *Queue, monitor *Monitor, tickrate int) *Server {
+func NewServer(monitorEventChan <-chan *QueuedQuery, getQueuedChan chan<- GetQueuedRequest, getResourcesChan chan<- GetResourcesRequest, delayChan chan<- DelayRequest) *Server {
 	server := &Server{
-		queue:    queue,
-		monitor:  monitor,
-		tickrate: tickrate,
-		mux:      http.NewServeMux(),
+		mux:              http.NewServeMux(),
+		monitorEventChan: monitorEventChan,
+		getQueuedChan:    getQueuedChan,
+		getResourcesChan: getResourcesChan,
+		delayChan:        delayChan,
 	}
 
 	// Set up routes
@@ -77,8 +86,17 @@ func (s *Server) handleGetQueued(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Get all queued queries
-	queued := s.queue.GetQueued()
+	// Create a response channel
+	responseChan := make(chan []*QueuedQuery)
+
+	// Send request through the channel
+	s.getQueuedChan <- GetQueuedRequest{
+		ResponseChan: responseChan,
+	}
+
+	// Get the response
+	queued := <-responseChan
+
 	if len(queued) == 0 {
 		w.WriteHeader(http.StatusNoContent)
 		return
@@ -89,12 +107,7 @@ func (s *Server) handleGetQueued(w http.ResponseWriter, r *http.Request) {
 
 	// Process each queued query
 	for _, query := range queued {
-		response := QueuedQuery{}
-		response.Query.ID = query.id.String()
-		response.Execution.ID = uuid.New().String()
-		offset := time.Duration(float64(query.delay)/float64(s.tickrate)) * time.Second
-		response.Execution.Timestamp = time.Now().Add(offset).UnixMilli()
-		responses = append(responses, response)
+		responses = append(responses, *query)
 	}
 
 	// Send response
@@ -110,15 +123,20 @@ func (s *Server) handleGetResources(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	lastUpdate, lastCpu, lastMemory, lastIo := s.monitor.GetResourceUsage()
+	// Create a response channel
+	responseChan := make(chan ResourceMetrics)
 
+	// Send request through the channel
+	s.getResourcesChan <- GetResourcesRequest{
+		ResponseChan: responseChan,
+	}
+
+	// Get the response
+	metrics := <-responseChan
+
+	// Send response
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(ResourceMetrics{
-		CPU:       lastCpu,
-		IO:        lastIo,
-		Memory:    lastMemory,
-		Timestamp: lastUpdate.UnixMilli(),
-	})
+	json.NewEncoder(w).Encode(metrics)
 }
 
 // handlePostDelay handles POST /delay requests
@@ -136,22 +154,13 @@ func (s *Server) handlePostDelay(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Validate request
-	if request.ID == "" {
+	if request.ID == uuid.Nil {
 		http.Error(w, "Missing execution ID", http.StatusBadRequest)
 		return
 	}
 
-	id, err := uuid.Parse(request.ID)
-	if err != nil {
-		http.Error(w, "Invalid execution ID", http.StatusBadRequest)
-		return
-	}
-
-	err = s.queue.Delay(id, request.Delay)
-	if err != nil {
-		http.Error(w, "Execution not found", http.StatusNotFound)
-		return
-	}
+	// Send request through the channel
+	s.delayChan <- request
 
 	w.WriteHeader(http.StatusOK)
 }
