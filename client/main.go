@@ -59,6 +59,7 @@ func init() {
 }
 
 func main() {
+	fmt.Println("Starting client")
 	go checkResources()
 	checkQueuedQueries()
 }

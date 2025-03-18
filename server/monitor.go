@@ -56,8 +56,14 @@ func (m *Monitor) Run(resourceUpdateChan <-chan ResourceUpdate, queueEventChan <
 			m.update(update.CPU, update.Memory, update.IO)
 		case queueUpdate := <-queueEventChan:
 			m.queueEvent(queueUpdate)
-		case <-getResourcesChan:
-			m.getResources()
+		case req := <-getResourcesChan:
+			lastUpdate, lastCpu, lastMemory, lastIo := m.getResources()
+			req.ResponseChan <- &ResourceMetrics{
+				Timestamp: lastUpdate.UnixMilli(),
+				CPU:       lastCpu,
+				Memory:    lastMemory,
+				IO:        lastIo,
+			}
 		}
 	}
 }

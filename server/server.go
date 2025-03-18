@@ -47,7 +47,7 @@ type GetQueuedRequest struct {
 }
 
 type GetResourcesRequest struct {
-	ResponseChan chan<- ResourceMetrics
+	ResponseChan chan<- *ResourceMetrics
 }
 
 // NewServer creates a new HTTP server
@@ -70,6 +70,12 @@ func NewServer(monitorEventChan <-chan *QueuedQuery, getQueuedChan chan<- GetQue
 
 func (s *Server) Start(addr string) {
 	log.Printf("Starting server on %s", addr)
+	// Start a goroutine to consume events from monitorEventChan
+	go func() {
+		for event := range s.monitorEventChan {
+			_ = event
+		}
+	}()
 	http.ListenAndServe(addr, s)
 }
 
@@ -87,7 +93,7 @@ func (s *Server) handleGetQueued(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Create a response channel
-	responseChan := make(chan []*QueuedQuery)
+	responseChan := make(chan []*QueuedQuery, 1)
 
 	// Send request through the channel
 	s.getQueuedChan <- GetQueuedRequest{
@@ -124,7 +130,7 @@ func (s *Server) handleGetResources(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Create a response channel
-	responseChan := make(chan ResourceMetrics)
+	responseChan := make(chan *ResourceMetrics, 1)
 
 	// Send request through the channel
 	s.getResourcesChan <- GetResourcesRequest{

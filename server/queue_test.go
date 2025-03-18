@@ -25,13 +25,14 @@ func (s *TestSuite) TestQueue() {
 	memoryCounts := make(map[int]int)
 	ioCounts := make(map[int]int)
 
+	numTicks := 1000
 	usageHistory := make(map[string][]int)
-	usageHistory["cpu"] = make([]int, 1000)
-	usageHistory["memory"] = make([]int, 1000)
-	usageHistory["io"] = make([]int, 1000)
+	usageHistory["cpu"] = make([]int, numTicks)
+	usageHistory["memory"] = make([]int, numTicks)
+	usageHistory["io"] = make([]int, numTicks)
 
 	// Run for 1000 ticks
-	for i := 0; i < 1000; i++ {
+	for i := 0; i < numTicks; i++ {
 		scalar := 1.0
 
 		// Tick the queue

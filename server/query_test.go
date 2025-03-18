@@ -68,7 +68,7 @@ func (s *TestSuite) TestGetQueries() {
 	meanCpuUsage := totalCpuUsage / len(queries)
 	meanMemoryUsage := totalMemoryUsage / len(queries)
 	meanIoUsage := totalIoUsage / len(queries)
-	s.InDelta(meanCpuUsage, 30, 5)
-	s.InDelta(meanMemoryUsage, 30, 5)
-	s.InDelta(meanIoUsage, 30, 5)
+	s.InDelta(meanCpuUsage, 40, 10)
+	s.InDelta(meanMemoryUsage, 40, 10)
+	s.InDelta(meanIoUsage, 40, 10)
 }

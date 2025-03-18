@@ -1,6 +1,8 @@
 package main
 
-import "time"
+import (
+	"time"
+)
 
 type Daemon struct {
 	queue              *Queue
@@ -24,6 +26,8 @@ func NewDaemon(queue *Queue, resourceUpdateChan chan<- ResourceUpdate, queueEven
 
 func (d *Daemon) Run(getQueuedChan <-chan GetQueuedRequest) {
 	ticker := time.NewTicker(time.Duration(1000/d.tickrate) * time.Millisecond)
+	defer ticker.Stop()
+
 	for {
 		select {
 		case <-ticker.C:

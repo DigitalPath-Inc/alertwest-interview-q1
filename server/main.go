@@ -6,7 +6,7 @@ import (
 )
 
 func scalarFunc(ticks int) float64 {
-	scalar := math.Sin((float64(ticks)-500)*math.Pi/1000)/2 + 1.5
+	scalar := math.Sin((float64(ticks)-500)*math.Pi/10000)/2 + 1.5
 	return scalar
 }
 

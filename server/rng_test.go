@@ -1,9 +1,5 @@
 package main
 
-import (
-	"fmt"
-)
-
 func (s *TestSuite) TestSkewNorm() {
 	mu := 30.0
 	sigma := 15.0
@@ -15,7 +11,6 @@ func (s *TestSuite) TestSkewNorm() {
 		x := SkewNorm(mu, sigma, lambda)
 		counts[int(x)]++
 	}
-	fmt.Println(counts)
 
 	mean := 0.0
 	total := 0
