@@ -9,6 +9,6 @@ func main() {
 	server := NewServer(db)
 
 	// Start components
-	go db.Run()
+	db.Run()
 	server.Start(":8080")
 }
