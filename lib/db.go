@@ -59,6 +59,6 @@ func (d *DB) GetResources() *ResourceMetrics {
 	return d.monitor.getResources()
 }
 
-func (d *DB) Delay(id uuid.UUID, delay int) {
-	d.queue.delay(id, delay)
+func (d *DB) Delay(id uuid.UUID, delay int) error {
+	return d.queue.delay(id, delay)
 }

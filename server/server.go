@@ -114,7 +114,11 @@ func (s *Server) handlePostDelay(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Send request through the channel
-	s.db.Delay(request.ID, request.Delay)
+	err := s.db.Delay(request.ID, request.Delay)
+	if err != nil {
+		http.Error(w, "Failed to delay query", http.StatusInternalServerError)
+		return
+	}
 
 	w.WriteHeader(http.StatusOK)
 }
