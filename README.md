@@ -77,7 +77,7 @@ The server provides the following APIs:
 ```
 
 > [!NOTE]
-> You should only need to modify [server.go](server/server.go), but feel free to take a look around.
+> You should only need to modify the [server](server/), but feel free to take a look around lib as well (but no touching!).
 
 ### Client (Monitoring Service)
 
