@@ -1,31 +1,13 @@
 package main
 
 import (
+	"alertwest-interview-q1/lib"
 	"encoding/json"
 	"log"
 	"net/http"
 
 	"github.com/google/uuid"
 )
-
-// ResourceMetrics represents the resource utilization metrics
-type ResourceMetrics struct {
-	CPU       ResourceUsage `json:"cpu"`
-	IO        ResourceUsage `json:"io"`
-	Memory    ResourceUsage `json:"memory"`
-	Timestamp int64         `json:"timestamp"`
-}
-
-// QueuedQuery represents a query in the queue
-type QueuedQuery struct {
-	Query struct {
-		ID string `json:"id"`
-	} `json:"query"`
-	Execution struct {
-		ID        string `json:"id"`
-		Timestamp int64  `json:"timestamp"`
-	} `json:"execution"`
-}
 
 // DelayRequest represents a request to delay a query execution
 type DelayRequest struct {
@@ -35,29 +17,15 @@ type DelayRequest struct {
 
 // Server represents the HTTP server
 type Server struct {
-	mux              *http.ServeMux
-	monitorEventChan <-chan *QueuedQuery
-	getQueuedChan    chan<- GetQueuedRequest
-	getResourcesChan chan<- GetResourcesRequest
-	delayChan        chan<- DelayRequest
-}
-
-type GetQueuedRequest struct {
-	ResponseChan chan<- []*QueuedQuery
-}
-
-type GetResourcesRequest struct {
-	ResponseChan chan<- *ResourceMetrics
+	mux *http.ServeMux
+	db  *lib.DB
 }
 
 // NewServer creates a new HTTP server
-func NewServer(monitorEventChan <-chan *QueuedQuery, getQueuedChan chan<- GetQueuedRequest, getResourcesChan chan<- GetResourcesRequest, delayChan chan<- DelayRequest) *Server {
+func NewServer(db *lib.DB) *Server {
 	server := &Server{
-		mux:              http.NewServeMux(),
-		monitorEventChan: monitorEventChan,
-		getQueuedChan:    getQueuedChan,
-		getResourcesChan: getResourcesChan,
-		delayChan:        delayChan,
+		mux: http.NewServeMux(),
+		db:  db,
 	}
 
 	// Set up routes
@@ -70,12 +38,6 @@ func NewServer(monitorEventChan <-chan *QueuedQuery, getQueuedChan chan<- GetQue
 
 func (s *Server) Start(addr string) {
 	log.Printf("Starting server on %s", addr)
-	// Start a goroutine to consume events from monitorEventChan
-	go func() {
-		for event := range s.monitorEventChan {
-			_ = event
-		}
-	}()
 	http.ListenAndServe(addr, s)
 }
 
@@ -84,7 +46,9 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	s.mux.ServeHTTP(w, r)
 }
 
-// handleGetQueued handles GET /queued requests
+// handleGetQueued handles GET /queued requests - currently polled every 5s on the client side.
+// This returns the current list of queued (but not yet executed) queries.
+// This is also available as a channel from the queueEventChan.
 func (s *Server) handleGetQueued(w http.ResponseWriter, r *http.Request) {
 	// Only allow GET requests
 	if r.Method != http.MethodGet {
@@ -92,16 +56,8 @@ func (s *Server) handleGetQueued(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Create a response channel
-	responseChan := make(chan []*QueuedQuery, 1)
-
 	// Send request through the channel
-	s.getQueuedChan <- GetQueuedRequest{
-		ResponseChan: responseChan,
-	}
-
-	// Get the response
-	queued := <-responseChan
+	queued := s.db.GetQueued()
 
 	if len(queued) == 0 {
 		w.WriteHeader(http.StatusNoContent)
@@ -109,7 +65,7 @@ func (s *Server) handleGetQueued(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Create response array
-	responses := make([]QueuedQuery, 0, len(queued))
+	responses := make([]lib.QueuedQuery, 0, len(queued))
 
 	// Process each queued query
 	for _, query := range queued {
@@ -129,16 +85,8 @@ func (s *Server) handleGetResources(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Create a response channel
-	responseChan := make(chan *ResourceMetrics, 1)
-
 	// Send request through the channel
-	s.getResourcesChan <- GetResourcesRequest{
-		ResponseChan: responseChan,
-	}
-
-	// Get the response
-	metrics := <-responseChan
+	metrics := s.db.GetResources()
 
 	// Send response
 	w.Header().Set("Content-Type", "application/json")
@@ -166,7 +114,7 @@ func (s *Server) handlePostDelay(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Send request through the channel
-	s.delayChan <- request
+	s.db.Delay(request.ID, request.Delay)
 
 	w.WriteHeader(http.StatusOK)
 }
