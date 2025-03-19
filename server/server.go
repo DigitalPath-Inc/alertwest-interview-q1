@@ -3,10 +3,10 @@ package main
 import (
 	"alertwest-interview-q1/lib"
 	"encoding/json"
-	"log"
 	"net/http"
 
 	"github.com/google/uuid"
+	"github.com/rs/zerolog/log"
 )
 
 // DelayRequest represents a request to delay a query execution
@@ -37,7 +37,7 @@ func NewServer(db *lib.DB) *Server {
 }
 
 func (s *Server) Start(addr string) {
-	log.Printf("Starting server on %s", addr)
+	log.Info().Str("Listening on", addr).Msg("Starting server")
 	http.ListenAndServe(addr, s)
 }
 
