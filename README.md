@@ -1,5 +1,15 @@
 # ALERTWest Interview Question 1
 
+## Instructions
+
+1. Hard fork this repository to create your own private copy.
+2. Add the following users as collaborators to your private repository: @ehiggins0, @jlang-dp, and @chrisschreiber.
+3. Work through the tasks outlined in the Overview section.
+4. Make frequent, small PRs as you complete portions of the work. Request review for each PR and we will provide feedback on your approach.
+5. Document your approach, any assumptions made, and your reasoning for design decisions.
+
+Feel free to reach out if you have any questions or need clarification on any aspect of the problem. We're here to help ensure you understand the requirements fully.
+
 ## Overview
 
 You are working on a database that is having performance issues with an unknown cause. Provided in this repo is a server and client. The server is the executor of queries, and the client is set up to monitor the database's utilization (cpu, io, and memory). An attempt has been made to also monitor which queries are being executed, but the method is not currently effective. Your task is to improve the system by addressing these issues, first by improving the query monitoring, then by implementing query scheduling to ensure consistent performance.
@@ -66,6 +76,9 @@ The server provides the following APIs:
 }
 ```
 
+> [!NOTE]
+> You should only need to modify the [server](server/), but feel free to take a look around lib as well (but no touching!).
+
 ### Client (Monitoring Service)
 
 The client currently polls `/queued` every 5 seconds and `/resources` every 30 seconds, but does not process the response.
@@ -98,12 +111,12 @@ Now that we have a complete query execution record and associated usage metrics,
 
 ### Objective
 
-Optimize query execution scheduling to maintain an average resource utilization of 70% for CPU, IO and memory, while also taking query latency into account.
+Optimize query execution scheduling to maintain a minimum and maximum CPU, IO and memory utilization within 10% of the averages, while also taking query latency into account.
 
 ### Requirements
 
 - Develop a client-side algorithm to estimate each query's resource utilization (CPU, IO, and memory) using historical execution data and the 30-second resource metrics
-- Create a client-side algorithm to determine when to execute queries, adjusting delays to achieve the 70% utilization target
+- Create a client-side algorithm to determine when to execute queries, adjusting delays to achieve the +/- 10% spread from the average
 - Ensure the client can be restarted and resume scheduling based on the system state.
 
 ### Deliverables
