@@ -48,7 +48,6 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 // handleGetQueued handles GET /queued requests - currently polled every 5s on the client side.
 // This returns the current list of queued (but not yet executed) queries.
-// This is also available as a channel from the queueEventChan.
 func (s *Server) handleGetQueued(w http.ResponseWriter, r *http.Request) {
 	// Only allow GET requests
 	if r.Method != http.MethodGet {
