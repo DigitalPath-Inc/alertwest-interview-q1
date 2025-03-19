@@ -12,7 +12,6 @@ type DB struct {
 	daemon             *Daemon
 	monitor            *Monitor
 	resourceUpdateChan <-chan ResourceUpdate
-	QueueEventChan     <-chan *QueuedQuery
 }
 
 func scalarFunc(ticks int) float64 {
@@ -29,11 +28,10 @@ func NewDB() *DB {
 
 	// Channels for event comms between components
 	resourceUpdateChan := make(chan ResourceUpdate, 100) // Handles the resource updates from daemon --> monitor
-	queueEventChan := make(chan *QueuedQuery, 100)       // Handles the queue updates from daemon --> ???
 
 	// Create components
 	queue := newQueue(queries, probs, defaultDelay)
-	daemon := newDaemon(queue, resourceUpdateChan, queueEventChan, tickrate, scalarFunc)
+	daemon := newDaemon(queue, resourceUpdateChan, tickrate, scalarFunc)
 	monitor := newMonitor(metricsUpdateFrequency, tickrate)
 
 	return &DB{
@@ -41,7 +39,6 @@ func NewDB() *DB {
 		daemon:             daemon,
 		monitor:            monitor,
 		resourceUpdateChan: resourceUpdateChan,
-		QueueEventChan:     queueEventChan,
 	}
 }
 
@@ -49,6 +46,10 @@ func (d *DB) Run() {
 	// Start components
 	go d.monitor.run(d.resourceUpdateChan)
 	go d.daemon.run()
+}
+
+func (d *DB) AddQueueListener(listener chan *QueuedQuery) {
+	d.daemon.addQueueListener(listener)
 }
 
 func (d *DB) GetQueued() []*QueuedQuery {
