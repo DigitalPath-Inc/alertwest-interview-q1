@@ -13,15 +13,19 @@ type Queue struct {
 	defaultDelay int                      // defaultDelay is the default delay of a query in ticks
 }
 
-// QueuedQuery represents a query in the queue
+// QueuedOperation represents a query in the queue
+type QueuedOperation struct {
+	Query     QueuedQuery     `json:"query"`
+	Execution QueuedExecution `json:"execution"`
+}
+
 type QueuedQuery struct {
-	Query struct {
-		ID string `json:"id"`
-	} `json:"query"`
-	Execution struct {
-		ID        string `json:"id"`
-		Timestamp int64  `json:"timestamp"`
-	} `json:"execution"`
+	ID string `json:"id"`
+}
+
+type QueuedExecution struct {
+	ID        string `json:"id"`
+	Timestamp int64  `json:"timestamp"`
 }
 
 func newQueue(queries []*Query, probs *[]float64, defaultDelay int) *Queue {

@@ -48,11 +48,11 @@ func (d *DB) Run() {
 	go d.daemon.run()
 }
 
-func (d *DB) AddQueueListener(listener chan *QueuedQuery) {
+func (d *DB) AddQueueListener(listener chan *QueuedOperation) {
 	d.daemon.addQueueListener(listener)
 }
 
-func (d *DB) GetQueued() []*QueuedQuery {
+func (d *DB) GetQueued() []*QueuedOperation {
 	return d.daemon.getQueued()
 }
 

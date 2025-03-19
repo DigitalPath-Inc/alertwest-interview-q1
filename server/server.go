@@ -64,7 +64,7 @@ func (s *Server) handleGetQueued(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Create response array
-	responses := make([]lib.QueuedQuery, 0, len(queued))
+	responses := make([]lib.QueuedOperation, 0, len(queued))
 
 	// Process each queued query
 	for _, query := range queued {
