@@ -29,7 +29,7 @@ func NewDB() *DB {
 
 	// Channels for event comms between components
 	resourceUpdateChan := make(chan ResourceUpdate, 100) // Handles the resource updates from daemon --> monitor
-	queueEventChan := make(chan *QueuedQuery, 100)       // Handles the queue updates from daemon --> server
+	queueEventChan := make(chan *QueuedQuery, 100)       // Handles the queue updates from daemon --> ???
 
 	// Create components
 	queue := newQueue(queries, probs, defaultDelay)
