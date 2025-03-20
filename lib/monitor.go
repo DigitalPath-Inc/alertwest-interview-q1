@@ -1,7 +1,10 @@
 package lib
 
 import (
+	"fmt"
 	"time"
+
+	"github.com/rs/zerolog"
 )
 
 type Monitor struct {
@@ -34,6 +37,13 @@ type ResourceMetrics struct {
 	IO        ResourceUsage `json:"io"`
 	Memory    ResourceUsage `json:"memory"`
 	Timestamp int64         `json:"timestamp"`
+}
+
+func (r ResourceMetrics) MarshalZerologObject(log *zerolog.Event) {
+	log.Str("CPU", fmt.Sprintf("avg: %d, min: %d, max: %d", r.CPU.Average, r.CPU.Min, r.CPU.Max))
+	log.Str("IO", fmt.Sprintf("avg: %d, min: %d, max: %d", r.IO.Average, r.IO.Min, r.IO.Max))
+	log.Str("Memory", fmt.Sprintf("avg: %d, min: %d, max: %d", r.Memory.Average, r.Memory.Min, r.Memory.Max))
+	log.Time("Timestamp", time.UnixMilli(r.Timestamp))
 }
 
 func newMonitor(updateFrequency time.Duration, tickrate int) *Monitor {
