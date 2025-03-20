@@ -7,7 +7,7 @@ import (
 type Daemon struct {
 	queue              *Queue
 	resourceUpdateChan chan<- ResourceUpdate
-	queueListeners     []chan *QueuedQuery
+	queueListeners     []chan *QueuedOperation
 	tickrate           int
 	scalarFunc         func(int) float64 // this allows us to have cyclic behavior, so we can simulate traffic over time
 	ticks              int
@@ -17,7 +17,7 @@ func newDaemon(queue *Queue, resourceUpdateChan chan<- ResourceUpdate, tickrate 
 	return &Daemon{
 		queue:              queue,
 		resourceUpdateChan: resourceUpdateChan,
-		queueListeners:     make([]chan *QueuedQuery, 0),
+		queueListeners:     make([]chan *QueuedOperation, 0),
 		tickrate:           tickrate,
 		scalarFunc:         scalarFunc,
 		ticks:              0,
@@ -39,24 +39,19 @@ func (d *Daemon) run() {
 	}
 }
 
-func (d *Daemon) addQueueListener(listener chan *QueuedQuery) {
+func (d *Daemon) addQueueListener(listener chan *QueuedOperation) {
 	d.queueListeners = append(d.queueListeners, listener)
 }
 
-func (d *Daemon) getQueued() []*QueuedQuery {
+func (d *Daemon) getQueued() []*QueuedOperation {
 	queued := d.queue.getQueued()
-	res := make([]*QueuedQuery, 0, len(queued))
+	res := make([]*QueuedOperation, 0, len(queued))
 	for _, q := range queued {
-		res = append(res, &QueuedQuery{
-			Query: struct {
-				ID string `json:"id"`
-			}{
+		res = append(res, &QueuedOperation{
+			Query: QueuedQuery{
 				ID: q.query.id.String(),
 			},
-			Execution: struct {
-				ID        string `json:"id"`
-				Timestamp int64  `json:"timestamp"`
-			}{
+			Execution: QueuedExecution{
 				ID:        q.id.String(),
 				Timestamp: time.Now().Add(time.Duration(q.delay) * time.Millisecond).UnixMilli(),
 			},
@@ -70,16 +65,11 @@ func (d *Daemon) queueEvent(queueUpdate []*Execution) {
 		offset := time.Duration(float64(execution.delay)/float64(d.tickrate)) * time.Second
 
 		// Create the QueuedQuery object
-		queuedQuery := &QueuedQuery{
-			Query: struct {
-				ID string `json:"id"`
-			}{
+		queuedQuery := &QueuedOperation{
+			Query: QueuedQuery{
 				ID: execution.query.id.String(),
 			},
-			Execution: struct {
-				ID        string `json:"id"`
-				Timestamp int64  `json:"timestamp"`
-			}{
+			Execution: QueuedExecution{
 				ID:        execution.id.String(),
 				Timestamp: time.Now().Add(offset).UnixMilli(),
 			},
