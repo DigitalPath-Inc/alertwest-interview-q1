@@ -7,17 +7,17 @@ import (
 type Daemon struct {
 	queue              *Queue
 	resourceUpdateChan chan<- ResourceUpdate
-	queueEventChan     chan *QueuedQuery
+	queueListeners     []chan *QueuedQuery
 	tickrate           int
 	scalarFunc         func(int) float64 // this allows us to have cyclic behavior, so we can simulate traffic over time
 	ticks              int
 }
 
-func newDaemon(queue *Queue, resourceUpdateChan chan<- ResourceUpdate, queueEventChan chan *QueuedQuery, tickrate int, scalarFunc func(int) float64) *Daemon {
+func newDaemon(queue *Queue, resourceUpdateChan chan<- ResourceUpdate, tickrate int, scalarFunc func(int) float64) *Daemon {
 	return &Daemon{
 		queue:              queue,
 		resourceUpdateChan: resourceUpdateChan,
-		queueEventChan:     queueEventChan,
+		queueListeners:     make([]chan *QueuedQuery, 0),
 		tickrate:           tickrate,
 		scalarFunc:         scalarFunc,
 		ticks:              0,
@@ -37,6 +37,10 @@ func (d *Daemon) run() {
 			d.ticks++
 		}
 	}
+}
+
+func (d *Daemon) addQueueListener(listener chan *QueuedQuery) {
+	d.queueListeners = append(d.queueListeners, listener)
 }
 
 func (d *Daemon) getQueued() []*QueuedQuery {
@@ -81,14 +85,14 @@ func (d *Daemon) queueEvent(queueUpdate []*Execution) {
 			},
 		}
 
-		// Try to send to channel, but if it's full, remove oldest item first
-		select {
-		case d.queueEventChan <- queuedQuery:
-			// Successfully sent
-		default:
-			// Channel is full, remove oldest item and then send
-			<-d.queueEventChan
-			d.queueEventChan <- queuedQuery
+		for _, listener := range d.queueListeners {
+			// Try to send to channel, but if it's full, remove oldest item first
+			select {
+			case listener <- queuedQuery:
+			default:
+				<-listener
+				listener <- queuedQuery
+			}
 		}
 	}
 }
