@@ -22,9 +22,9 @@ func scalarFunc(ticks int) float64 {
 func NewDB() *DB {
 	queries := getQueries(100)
 	probs := getExecutionProbs(100)
-	defaultDelay := 10                                        // 10 tick / 100ms default delay
-	metricsUpdateFrequency := time.Second * time.Duration(30) // 30 second metrics update frequency
-	tickrate := 100                                           // 100 ticks per second
+	defaultDelay := 1                                        // 1 tick / 100ms default delay
+	metricsUpdateFrequency := time.Second * time.Duration(5) // 5 second metrics update frequency
+	tickrate := 10                                           // 10 ticks per second
 
 	// Channels for event comms between components
 	resourceUpdateChan := make(chan ResourceUpdate, 100) // Handles the resource updates from daemon --> monitor
