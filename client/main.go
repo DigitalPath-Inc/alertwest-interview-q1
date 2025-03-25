@@ -89,7 +89,7 @@ func checkQueuedQueries() {
 
 func checkResources() {
 	for {
-		time.Sleep(time.Second * 15)
+		time.Sleep(time.Second * 5)
 		resp, err := http.Get(serverURL + "/resources")
 		if err != nil {
 			log.Err(err).Msg("Error making request")
