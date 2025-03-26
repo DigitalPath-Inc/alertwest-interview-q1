@@ -44,12 +44,12 @@ The server provides the following APIs:
 }
 ```
 
-- `GET /resources` returns the resource utilization of the database, updated every 30 seconds:
+- `GET /resources` returns the resource utilization of the database, updated every 5 seconds:
 
 ```json
 {
   "cpu": {
-    "average": 50, // Percentage over the last 30 seconds
+    "average": 50, // Percentage over the last 5 seconds
     "min": 30,
     "max": 70
   },
@@ -81,7 +81,7 @@ The server provides the following APIs:
 
 ### Client (Monitoring Service)
 
-The client currently polls `/queued` every 5 seconds and `/resources` every 30 seconds, but does not process the response.
+The client currently polls `/queued` every 5 seconds and `/resources` every 5 seconds, but does not process the response.
 
 ## Part 1: Identify Queries being Executed
 
@@ -115,7 +115,7 @@ Optimize query execution scheduling to maintain a minimum and maximum CPU, IO an
 
 ### Requirements
 
-- Develop a client-side algorithm to estimate each query's resource utilization (CPU, IO, and memory) using historical execution data and the 30-second resource metrics
+- Develop a client-side algorithm to estimate each query's resource utilization (CPU, IO, and memory) using historical execution data and the 5-second resource metrics
 - Create a client-side algorithm to determine when to execute queries, adjusting delays to achieve the +/- 10% spread from the average
 - Ensure the client can be restarted and resume scheduling based on the system state.
 
