@@ -72,7 +72,7 @@ The server provides the following APIs:
 ```json
 {
   "id": "a7e3f4c2-9b8d-5e6f-7c0a-1d2b3c4d5e6f", // Execution ID
-  "delay": 1000 // Delay in ms
+  "delay": 10 // Delay in ticks, where a tick is 100ms
 }
 ```
 
