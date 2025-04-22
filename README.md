@@ -77,7 +77,7 @@ The server provides the following APIs:
 ```
 
 > [!NOTE]
-> You should only need to modify the [server](server/), but feel free to take a look around lib as well (but no touching!).
+> You should only need to modify the [server](server/), but feel free to take a look around lib as well.
 
 ### Client (Monitoring Service)
 
@@ -123,3 +123,15 @@ Optimize query execution scheduling to maintain a minimum and maximum CPU, IO an
 
 - Update the client code to schedule queries using the appropriate algorithms
 - Document the system you've designed and how your approach achieves the targetted utilization
+
+## Frequently Asked Questions
+
+### What is lib, and what can be used / modified in it?
+
+Lib is the implementation of our "database". It randomly selects "queries", then executes them depending on the parameters defined in [db](./lib/db.go).
+
+All exported functions can be used in your solution. While you should not need to modify any part of lib to solve this problem, you can change the parameters in `db` to make the problem easier / harder. Your final solution should support basically any parameters.
+
+### Can additional services be added?
+
+Yes, you may add services on an as needed basis, as long as the services are open source and the entire application can be ran locally and started with a single command.
