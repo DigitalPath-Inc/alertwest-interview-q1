@@ -46,11 +46,6 @@ func (q *Queue) getQueued() []*Execution {
 }
 
 func (q *Queue) tick(scalar float64) ([]*Execution, []*Execution) {
-	newQueries := selectExecutedQueries(q.probs, q.queries, scalar, q.defaultDelay)
-	for _, query := range newQueries {
-		q.queued[query.id] = query
-	}
-
 	executed := make([]*Execution, 0)
 	for id, execution := range q.queued {
 		execution.delay -= 1
@@ -58,6 +53,11 @@ func (q *Queue) tick(scalar float64) ([]*Execution, []*Execution) {
 			executed = append(executed, execution)
 			delete(q.queued, id)
 		}
+	}
+
+	newQueries := selectExecutedQueries(q.probs, q.queries, scalar, q.defaultDelay)
+	for _, query := range newQueries {
+		q.queued[query.id] = query
 	}
 
 	return newQueries, executed
