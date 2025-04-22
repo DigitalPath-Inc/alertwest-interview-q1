@@ -2,7 +2,7 @@
 
 ## Instructions
 
-1. Hard fork this repository to create your own private copy.
+1. Hard fork this repository (git clone + new remote) to create your own private copy.
 2. Add the following users as collaborators to your private repository: @ehiggins0, @jlang-dp, and @chrisschreiber.
 3. Work through the tasks outlined in the Overview section.
 4. Make frequent, small PRs as you complete portions of the work. Request review for each PR and we will provide feedback on your approach.
@@ -44,12 +44,12 @@ The server provides the following APIs:
 }
 ```
 
-- `GET /resources` returns the resource utilization of the database, updated every 5 seconds:
+- `GET /resources` returns the resource utilization of the database, updated every second:
 
 ```json
 {
   "cpu": {
-    "average": 50, // Percentage over the last 5 seconds
+    "average": 50, // Percentage over the last second
     "min": 30,
     "max": 70
   },
@@ -81,13 +81,13 @@ The server provides the following APIs:
 
 ### Client (Monitoring Service)
 
-The client currently polls `/queued` every 5 seconds and `/resources` every 5 seconds, but does not process the response.
+The client currently polls `/queued` and `/resources` every second, but does not process the response.
 
 ## Part 1: Identify Queries being Executed
 
 ### Problem
 
-We are currently polling the `/queued` endpoint every 5 seconds to get a picture of the query patterns on the server, but we're missing data - some queries are rare (or too fast) and we need to make sure that we capture everything.
+We are currently polling the `/queued` endpoint every second to get a picture of the query patterns on the server, but we're missing data - some queries are rare (or too fast) and we need to make sure that we capture everything.
 
 ### Objective
 
@@ -115,7 +115,7 @@ Optimize query execution scheduling to maintain a minimum and maximum CPU, IO an
 
 ### Requirements
 
-- Develop a client-side algorithm to estimate each query's resource utilization (CPU, IO, and memory) using historical execution data and the 5-second resource metrics
+- Develop a client-side algorithm to estimate each query's resource utilization (CPU, IO, and memory) using historical execution data and the 1-second resource metrics
 - Create a client-side algorithm to determine when to execute queries, adjusting delays to achieve the +/- 10% spread from the average
 - Ensure the client can be restarted and resume scheduling based on the system state.
 
@@ -130,8 +130,12 @@ Optimize query execution scheduling to maintain a minimum and maximum CPU, IO an
 
 Lib is the implementation of our "database". It randomly selects "queries", then executes them depending on the parameters defined in [db](./lib/db.go).
 
-All exported functions can be used in your solution. While you should not need to modify any part of lib to solve this problem, you can change the parameters in `db` to make the problem easier / harder. Your final solution should support basically any parameters.
+All exported functions can be used in your solution. While you should not need to modify any part of lib to solve this problem, you can change the parameters in `db` to make the problem easier / harder. Your final solution should support basically any set of parameters.
 
 ### Can additional services be added?
 
 Yes, you may add services on an as needed basis, as long as the services are open source and the entire application can be ran locally and started with a single command.
+
+### Where can additional questions be asked?
+
+We encourage you to frequently ask questions while working on this question. We are more than willing to clarify anything you're uncertain about, validate your solution before implementation, or just give feedback on ideas. Feel free to include questions in PRs or reach out to us via email, Slack, or Discord, and we will try to get back to you same-day.

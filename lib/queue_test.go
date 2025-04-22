@@ -11,14 +11,14 @@ func (s *TestSuite) TestQueue() {
 	queries := getQueries(100)
 	probs := getExecutionProbs(100)
 
-	// Create a queue with a default delay of 10 ticks
-	queue := newQueue(queries, probs, 10)
+	// Create a queue with a default delay of 1 tick
+	queue := newQueue(queries, probs, 1)
 
 	// Test initial state
 	s.Empty(queue.queued)
 	s.Equal(100, len(queue.queries))
 	s.Equal(100, len(*queue.probs))
-	s.Equal(10, queue.defaultDelay)
+	s.Equal(1, queue.defaultDelay)
 
 	// Track resource usage over time
 	cpuCounts := make(map[int]int)
