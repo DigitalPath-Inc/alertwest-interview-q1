@@ -11,14 +11,14 @@ func (s *TestSuite) TestQueue() {
 	queries := getQueries(100)
 	probs := getExecutionProbs(100)
 
-	// Create a queue with a tickrate of 10 and default delay of 5 ticks
-	queue := newQueue(queries, probs, 5)
+	// Create a queue with a default delay of 1 tick
+	queue := newQueue(queries, probs, 1)
 
 	// Test initial state
 	s.Empty(queue.queued)
 	s.Equal(100, len(queue.queries))
 	s.Equal(100, len(*queue.probs))
-	s.Equal(5, queue.defaultDelay)
+	s.Equal(1, queue.defaultDelay)
 
 	// Track resource usage over time
 	cpuCounts := make(map[int]int)
@@ -26,10 +26,24 @@ func (s *TestSuite) TestQueue() {
 	ioCounts := make(map[int]int)
 
 	numTicks := 1000
-	usageHistory := make(map[string][]int)
-	usageHistory["cpu"] = make([]int, numTicks)
-	usageHistory["memory"] = make([]int, numTicks)
-	usageHistory["io"] = make([]int, numTicks)
+
+	type QueryExecution struct {
+		QueryID string `json:"query_id"`
+		CPU     int    `json:"cpu"`
+		Memory  int    `json:"memory"`
+		IO      int    `json:"io"`
+	}
+
+	type TickLog struct {
+		Tick      int              `json:"tick"`
+		NumQueued int              `json:"num_queued"`
+		Executed  []QueryExecution `json:"executed"`
+		TotalCPU  int              `json:"total_cpu"`
+		TotalMem  int              `json:"total_memory"`
+		TotalIO   int              `json:"total_io"`
+	}
+
+	executionLog := make([]TickLog, 0, numTicks)
 
 	// Run for 1000 ticks
 	for i := 0; i < numTicks; i++ {
@@ -38,13 +52,30 @@ func (s *TestSuite) TestQueue() {
 		// Tick the queue
 		queued, executed := queue.tick(scalar)
 
-		s.InDelta(len(queued), 1, 5) // 0-6 queries queued per tick
-
 		summed := sumResources(executed)
 
-		usageHistory["cpu"][i] = summed.CPU
-		usageHistory["memory"][i] = summed.Memory
-		usageHistory["io"][i] = summed.IO
+		// Log tick details
+		tickLog := TickLog{
+			Tick:      i,
+			NumQueued: len(queued),
+			Executed:  make([]QueryExecution, 0, len(executed)),
+			TotalCPU:  summed.CPU,
+			TotalMem:  summed.Memory,
+			TotalIO:   summed.IO,
+		}
+
+		for _, exec := range executed {
+			tickLog.Executed = append(tickLog.Executed, QueryExecution{
+				QueryID: exec.query.id.String(),
+				CPU:     exec.query.cpuUsage,
+				Memory:  exec.query.memoryUsage,
+				IO:      exec.query.ioUsage,
+			})
+		}
+
+		executionLog = append(executionLog, tickLog)
+
+		s.InDelta(len(queued), 1, 5) // 0-6 queries queued per tick
 
 		// Record resource usage
 		cpuCounts[summed.CPU]++
@@ -52,13 +83,13 @@ func (s *TestSuite) TestQueue() {
 		ioCounts[summed.IO]++
 	}
 
-	// Save usage history to disk for analysis
-	file, err := json.MarshalIndent(usageHistory, "", "  ")
+	// Save detailed execution log
+	execLogJson, err := json.MarshalIndent(executionLog, "", "  ")
 	if err == nil {
-		err = os.WriteFile("queue_usage_history.json", file, 0644)
-		s.NoError(err, "Failed to write usage history to file")
+		err = os.WriteFile("queue_execution_log.json", execLogJson, 0644)
+		s.NoError(err, "Failed to write execution log to file")
 	} else {
-		s.Fail("Failed to marshal usage history to JSON")
+		s.Fail("Failed to marshal execution log to JSON")
 	}
 
 	meanCpuUsage := calculateMean(cpuCounts, 1000)
