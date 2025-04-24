@@ -122,7 +122,8 @@ The `server` package implements the HTTP API for interacting with the in-memory 
   }
   ```
 
-> Note: You should only need to modify the `server` directory for core functionality, but you may review `lib`.
+> [!NOTE]
+> You should only need to modify the `server` directory for core functionality, but you may want to review `lib`.
 
 ### Client (Monitoring Service)
 
@@ -152,7 +153,8 @@ Develop a reliable mechanism to record all queries executed by the backend servi
 - Modify the server and client to support your selected architecture
 - Include documentation regarding architectural decisions made throughout the process
 
-> Note: You should review part 2 before settling on a solution to part 1. Your solution in part 1 will be necessary to understand which queries are in the queue pending execution.
+> [!NOTE]
+> You should review part 2 before settling on a solution to part 1. Your solution in part 1 will be necessary to understand which queries are in the queue pending execution.
 
 ## Part 2: Optimize Query Schedule
 
