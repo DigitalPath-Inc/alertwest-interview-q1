@@ -12,7 +12,9 @@ Feel free to reach out if you have any questions or need clarification on any as
 
 ## Overview
 
-You are working on a database that is having performance issues with an unknown cause. Provided in this repo is a server and client. The server is the executor of queries, and the client is set up to monitor the database's utilization (cpu, io, and memory). An attempt has been made to also monitor which queries are being executed, but the method is not currently effective. Your task is to improve the system by addressing these issues, first by improving the query monitoring, then by implementing query scheduling to ensure consistent performance.
+You are working on a database that is having performance issues with an unknown cause. The current monitoring is showing an average within operating standards for CPU, memory, and disk usage, but has very high maximums.
+![Resource Usage](usage.png)
+Provided in this repo is a server and client. The server is the executor of queries, and the client is set up to monitor the database's utilization (cpu, io, and memory). An attempt has been made to also monitor which queries are being executed, but the method is not currently effective. Your task is to improve the system by addressing these issues, first by improving the query monitoring, then by implementing query scheduling to ensure consistent performance.
 
 ## General Requirements
 
@@ -26,62 +28,109 @@ While AI tools are permitted, we are looking for a good understanding of the imp
 
 ## Current Implementation
 
+### Lib
+
+The `lib` package implements the core in-memory database simulation, including query scheduling, execution daemon, and resource monitoring. It exposes a high-level `DB` type that glues together these components and provides a clean interface for the server and client layers.
+
+#### Components
+
+- **Queue**  
+  Manages pending queries (`QueuedOperation`), their execution times, and supports dynamic delay adjustments.
+- **Daemon**  
+  A background worker that pulls operations from the queue at each tick, executes them, and emits resource‐usage updates.
+- **Monitor**  
+  Collects and aggregates CPU, memory, and I/O statistics at a configurable frequency and makes them available to clients.
+
+#### Public Functions
+
+- `func NewDB() *DB`  
+  Factory function that:
+  1. Loads 100 dummy queries and their execution probabilities.
+  2. Sets default tick delay (1 tick = 100 ms) and tick rate (10 ticks/sec).
+  3. Configures a 1 second metrics‐update frequency.
+  4. Initializes inter‐component channels and returns a ready‐to‐run `DB` instance.
+
+#### DB Methods
+
+- `func (d *DB) Run()`  
+  Launches the monitor and daemon in separate goroutines, kicking off query execution and metrics collection.
+
+- `func (d *DB) AddQueueListener(listener chan *QueuedOperation)`  
+  Registers a channel to receive live updates whenever a new operation enters the queue.
+
+- `func (d *DB) GetQueued() []*QueuedOperation`  
+  Returns a snapshot of all currently queued operations.
+
+- `func (d *DB) GetResources() *ResourceMetrics`  
+  Retrieves the most recent aggregated resource usage metrics.
+
+- `func (d *DB) Delay(id uuid.UUID, delay int) error`  
+  Applies an additional delay (measured in ticks) to a scheduled query execution.
+
 ### Server (Backend Service)
 
-The server provides the following APIs:
+The `server` package implements the HTTP API for interacting with the in-memory database simulation. It registers handlers for retrieving queued operations, fetching resource metrics, and delaying specific query executions.
 
-- `GET /queued` returns the currently queued queries, with a response like this:
+#### Endpoints
 
-```json
-{
-  "query": {
-    "id": "550e8400-e29b-41d4-a716-446655440000" // Unique query ID
-  },
-  "execution": {
-    "id": "a7e3f4c2-9b8d-5e6f-7c0a-1d2b3c4d5e6f", // Unique execution ID
-    "timestamp": 1740000000000 // Scheduled execution timestamp (Unix time ms)
+- `GET /queued`  
+  Returns the list of currently queued (but not yet executed) queries. Example response:
+
+  ```json
+  {
+    "query": {
+      "id": "550e8400-e29b-41d4-a716-446655440000"
+    },
+    "execution": {
+      "id": "a7e3f4c2-9b8d-5e6f-7c0a-1d2b3c4d5e6f",
+      "timestamp": 1740000000000
+    }
   }
-}
-```
+  ```
 
-- `GET /resources` returns the resource utilization of the database, updated every second:
+- `GET /resources`  
+  Retrieves the most recent resource utilization metrics (CPU, I/O, memory) aggregated over the last second. Example response:
 
-```json
-{
-  "cpu": {
-    "average": 50, // Percentage over the last second
-    "min": 30,
-    "max": 70
-  },
-  "io": {
-    "average": 50,
-    "min": 30,
-    "max": 70
-  },
-  "memory": {
-    "average": 50,
-    "min": 30,
-    "max": 70
-  },
-  "timestamp": 1740000000000 // Unix timestamp of the update
-}
-```
+  ```json
+  {
+    "cpu": {
+      "average": 50,
+      "min": 30,
+      "max": 70
+    },
+    "io": {
+      "average": 50,
+      "min": 30,
+      "max": 70
+    },
+    "memory": {
+      "average": 50,
+      "min": 30,
+      "max": 70
+    },
+    "timestamp": 1740000000000
+  }
+  ```
 
-- `POST /delay` allows you to delay a specific query execution and expects a body like this:
+- `POST /delay`  
+  Applies an additional delay (in ticks) to a scheduled query execution. Request body:
 
-```json
-{
-  "id": "a7e3f4c2-9b8d-5e6f-7c0a-1d2b3c4d5e6f", // Execution ID
-  "delay": 10 // Delay in ticks, where a tick is 100ms
-}
-```
+  ```json
+  {
+    "id": "a7e3f4c2-9b8d-5e6f-7c0a-1d2b3c4d5e6f",
+    "delay": 10
+  }
+  ```
 
-> [!NOTE]
-> You should only need to modify the [server](server/), but feel free to take a look around lib as well.
+> Note: You should only need to modify the `server` directory for core functionality, but you may review `lib`.
 
 ### Client (Monitoring Service)
 
-The client currently polls `/queued` and `/resources` every second, but does not process the response.
+The `client` package polls the server endpoints at regular intervals but does not currently process or act on the retrieved data.
+
+#### Polling Behavior
+
+- Polls `GET /queued` and `GET /resources` every second; responses are currently not processed.
 
 ## Part 1: Identify Queries being Executed
 
@@ -103,6 +152,8 @@ Develop a reliable mechanism to record all queries executed by the backend servi
 - Modify the server and client to support your selected architecture
 - Include documentation regarding architectural decisions made throughout the process
 
+> Note: You should review part 2 before settling on a solution to part 1. Your solution in part 1 will be necessary to understand which queries are in the queue pending execution.
+
 ## Part 2: Optimize Query Schedule
 
 ### Problem
@@ -122,7 +173,7 @@ Optimize query execution scheduling to maintain a minimum and maximum CPU, IO an
 ### Deliverables
 
 - Update the client code to schedule queries using the appropriate algorithms
-- Document the system you've designed and how your approach achieves the targetted utilization
+- Document the system you've designed and how your approach achieves the targeted utilization
 
 ## Frequently Asked Questions
 
