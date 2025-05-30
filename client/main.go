@@ -34,6 +34,8 @@ type DelayRequest struct {
 	Delay int    `json:"delay"`
 }
 
+// Set up the server URL from environment variable and ensure it is set
+// before starting the client and log an error if it is not set
 func init() {
 	serverURL = os.Getenv("SERVER_URL")
 	if serverURL == "" {
@@ -41,6 +43,8 @@ func init() {
 	}
 }
 
+// Run main function initializes the logger and starts the resource checking.
+// It also starts checking the queued queries from the server.
 func main() {
 	zerolog.SetGlobalLevel(zerolog.InfoLevel)
 	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
@@ -49,6 +53,8 @@ func main() {
 	checkQueuedQueries()
 }
 
+// checkQueuedQueries periodically checks the queued queries from the server
+// and logs the details of each query.
 func checkQueuedQueries() {
 	for {
 		time.Sleep(time.Second * 1)
@@ -87,6 +93,8 @@ func checkQueuedQueries() {
 	}
 }
 
+// checkResources periodically checks the server for resource metrics
+// and logs the resource usage.
 func checkResources() {
 	for {
 		time.Sleep(time.Second * 1)
