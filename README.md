@@ -160,7 +160,7 @@ Develop a reliable mechanism to record all queries executed by the backend servi
 ### Deliverables
 
 - Modify the server and client to support your selected architecture.
-- Include inline and readme documentation regarding architectural decisions made throughout the process
+- Include inline documentation and an overview in solution.md regarding architectural decisions made throughout the process.
 
 ### Your Solution Overview
 Please find the `SOLUTION.md` in the root directory to add your solution details.
@@ -184,7 +184,8 @@ Optimize query execution scheduling to maintain a minimum and maximum CPU, IO an
 ### Deliverables
 
 - Update the client code to schedule queries using the appropriate algorithms
-- Document the system you've designed and how your approach achieves the targeted utilization
+- Include inline documentation and an overview in solution.md regarding the system you've designed and how your approach achieves the targeted utilization
+
 
 ### Part 2: Your Solution Overview
 Please find the `SOLUTION.md` in the root directory to add your solution details.
