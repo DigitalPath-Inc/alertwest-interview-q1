@@ -133,7 +133,13 @@ The `client` package polls the server endpoints at regular intervals but does no
 
 - Polls `GET /queued` and `GET /resources` every second; responses are currently not processed.
 
+# Exercise
+Please read through the entire exercise before starting to work on it.  The exercise is broken into two parts, and you will need to complete Part 1 before starting Part 2.  The two parts are related, but can be completed independently.  However, you should not start working on Part 2 until you have a solution for Part 1.
+
+> We are looking for a solution that can be run locally, so please include instructions on how to run the server and client locally.
+
 ## Part 1: Identify Queries being Executed
+> Hint: Review Part 2 before settling on a solution to Part 1.  Your solution in Part 1 will be necessary to understand which queries are in the queue peding exection.
 
 ### Problem
 
@@ -150,11 +156,15 @@ Develop a reliable mechanism to record all queries executed by the backend servi
 
 ### Deliverables
 
-- Modify the server and client to support your selected architecture
-- Include documentation regarding architectural decisions made throughout the process
+- Modify the server and client to support your selected architecture.
+- Include inline and readme documentation regarding architectural decisions made throughout the process
 
-> [!NOTE]
-> You should review part 2 before settling on a solution to part 1. Your solution in part 1 will be necessary to understand which queries are in the queue pending execution.
+### Your Solution Overview (Add your Documentation Here)
+Please provide a brief overview of your solution, including:
+- The architecture you chose to implement and why?
+- How you ensured all queries are captured?
+- How you handle network or client failures?
+- Any additional considerations or challenges you faced during implementation.
 
 ## Part 2: Optimize Query Schedule
 
@@ -177,6 +187,14 @@ Optimize query execution scheduling to maintain a minimum and maximum CPU, IO an
 - Update the client code to schedule queries using the appropriate algorithms
 - Document the system you've designed and how your approach achieves the targeted utilization
 
+### Part 2: Your Solution Overview (Add your Documentation Here)
+Please provide a brief overview of your solution, including:
+- The algorithms you implemented for query scheduling
+- How you estimated the resource utilization for each query
+- How you ensure the system maintains the desired resource utilization spread?
+- Any additional considerations or challenges you faced during implementation.
+ 
+
 ## Frequently Asked Questions
 
 ### What is lib, and what can be used / modified in it?
@@ -192,3 +210,5 @@ Yes, you may add services on an as needed basis, as long as the services are ope
 ### Where can additional questions be asked?
 
 We encourage you to frequently ask questions while working on this question. We are more than willing to clarify anything you're uncertain about, validate your solution before implementation, or just give feedback on ideas. Feel free to include questions in PRs or reach out to us via email, Slack, or Discord, and we will try to get back to you same-day.
+
+
