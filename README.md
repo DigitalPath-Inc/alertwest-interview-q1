@@ -210,5 +210,3 @@ Yes, you may add services on an as needed basis, as long as the services are ope
 ### Where can additional questions be asked?
 
 We encourage you to frequently ask questions while working on this question. We are more than willing to clarify anything you're uncertain about, validate your solution before implementation, or just give feedback on ideas. Feel free to include questions in PRs or reach out to us via email, Slack, or Discord, and we will try to get back to you same-day.
-
-
