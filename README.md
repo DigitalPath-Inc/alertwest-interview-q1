@@ -135,11 +135,14 @@ The `client` package polls the server endpoints at regular intervals but does no
 
 # Exercise
 Please read through the entire exercise before starting to work on it.  The exercise is broken into two parts, and you will need to complete Part 1 before starting Part 2.  The two parts are related, but can be completed independently.  However, you should not start working on Part 2 until you have a solution for Part 1.
+Before you start on code implementation, open a pull request with your proposed solution in a `SOLUTION.md` file. You should include details as outlined in the below segments.
 
+> [!NOTE]
 > We are looking for a solution that can be run locally, so please include instructions on how to run the server and client locally.
 
 ## Part 1: Identify Queries being Executed
-> Hint: Review Part 2 before settling on a solution to Part 1.  Your solution in Part 1 will be necessary to understand which queries are in the queue peding exection.
+> [!NOTE]
+> Hint: Review Part 2 before settling on a solution to Part 1.  Your solution in Part 1 will be necessary to understand which queries are in the queue pending execution.
 
 ### Problem
 
@@ -159,12 +162,8 @@ Develop a reliable mechanism to record all queries executed by the backend servi
 - Modify the server and client to support your selected architecture.
 - Include inline and readme documentation regarding architectural decisions made throughout the process
 
-### Your Solution Overview (Add your Documentation Here)
-Please provide a brief overview of your solution, including:
-- The architecture you chose to implement and why?
-- How you ensured all queries are captured?
-- How you handle network or client failures?
-- Any additional considerations or challenges you faced during implementation.
+### Your Solution Overview
+Please find the `SOLUTION.md` in the root directory to add your solution details.
 
 ## Part 2: Optimize Query Schedule
 
@@ -187,13 +186,8 @@ Optimize query execution scheduling to maintain a minimum and maximum CPU, IO an
 - Update the client code to schedule queries using the appropriate algorithms
 - Document the system you've designed and how your approach achieves the targeted utilization
 
-### Part 2: Your Solution Overview (Add your Documentation Here)
-Please provide a brief overview of your solution, including:
-- The algorithms you implemented for query scheduling
-- How you estimated the resource utilization for each query
-- How you ensure the system maintains the desired resource utilization spread?
-- Any additional considerations or challenges you faced during implementation.
- 
+### Part 2: Your Solution Overview
+Please find the `SOLUTION.md` in the root directory to add your solution details.
 
 ## Frequently Asked Questions
 
